@@ -1,39 +1,16 @@
 package com.jackandabhishek.image_ination;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore.Images;
-import android.provider.MediaStore.Images.ImageColumns;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Toast;
-import com.jackandabhishek.image_ination.R.id;
 
 public class MainActivity extends Activity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -91,7 +68,7 @@ public class MainActivity extends Activity implements
 				break;
 			case BROWSEPHOTOS_FRAGMENT_POSITION:
 				fragmentManager.beginTransaction()
-						.replace(R.id.container, BrowsePhotosFragment.newInstance()).commit();
+						.replace(R.id.container, PhotoBrowserFragment.newInstance()).commit();
 				break;
 			case OTHERSTUFF_FRAGMENT_POSITION:
 				fragmentManager.beginTransaction()
