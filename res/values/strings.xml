@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Image-ination</string>
+    <string name="title_section1_takephoto">Take Photo</string>
+    <string name="title_section2_browsegallery">Browse Gallery</string>
+    <string name="title_section3_otherstuff">Other Stuff</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
+    <string name="take_photo">Take Photo</string>
+
+</resources>
