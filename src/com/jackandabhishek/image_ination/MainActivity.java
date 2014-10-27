@@ -3,31 +3,47 @@ package com.jackandabhishek.image_ination;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
+import com.jackandabhishek.image_ination.R.id;
 
 public class MainActivity extends Activity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
 	
+	private final String TAG = "Image-ination MainActivity";
+	public static final int MEDIA_TYPE_IMAGE = 1;
+	public static final int MEDIA_TYPE_VIDEO = 2;
+	public static final String DCIM = Environment.getExternalStoragePublicDirectory(
+			Environment.DIRECTORY_DCIM).toString();
+	public static final String DIRECTORY = DCIM + "/Imageination";
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
 	 */
@@ -37,6 +53,9 @@ public class MainActivity extends Activity implements
 	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
+	
+	private Camera mCamera;
+	private CameraPreview mPreview;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +70,46 @@ public class MainActivity extends Activity implements
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
+		
+		if (!checkCameraHardware(getApplicationContext())) {
+			// camera does not exist on this device
+			Toast.makeText(getApplicationContext(), "No Cameras found", Toast.LENGTH_LONG).show();
+			System.exit(1);
+		}
+	}
+	
+	public void onResume() {
+		super.onResume();
+		
+		mCamera = getCameraInstance();
+		
+		if (mCamera == null) {
+			// camera is in use
+			Toast.makeText(getApplicationContext(), "Camera is in use", Toast.LENGTH_LONG).show();
+			System.exit(1);
+		}
+		mCamera.setDisplayOrientation(90);
+		
+		mPreview = new CameraPreview(getApplicationContext(), mCamera);
+		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+		preview.addView(mPreview);
+		
+		// Add a listener to the Capture button
+		Button captureButton = (Button) findViewById(id.camera_button);
+		captureButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// get an image from the camera
+				mCamera.takePicture(null, null, mPicture);
+			}
+		});
+	}
+	
+	public void onStop() {
+		super.onStop();
+		
+		// mCamera.release();
 	}
 	
 	@Override
@@ -107,107 +166,122 @@ public class MainActivity extends Activity implements
 		return super.onOptionsItemSelected(item);
 	}
 	
-	// codes from http://developer.android.com/guide/topi cs/media/camera.html
-	// and http://developer.android.com/guide/topics/media/camera.html#saving-media
-	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final int MEDIA_TYPE_VIDEO = 2;
-	private Uri fileUri;
+	// from: http://developer.android.com/guide/topics/media/camera.html#manifest
+	/** Check if this device has a camera */
+	private boolean checkCameraHardware(Context context) {
+		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+			// this device has a camera
+			return true;
+		}
+		else {
+			// no camera on this device
+			return false;
+		}
+	}
 	
-	private void galleryAddPic() {
-		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-		File f = new File(fileUri.toString());
-		Uri contentUri = Uri.fromFile(f);
-		mediaScanIntent.setData(contentUri);
-		this.sendBroadcast(mediaScanIntent);
+	/** A safe way to get an instance of the Camera object. */
+	public static Camera getCameraInstance() {
+		int cameraCount = 0;
+		Camera c = null;
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		cameraCount = Camera.getNumberOfCameras();
+		for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+			Camera.getCameraInfo(camIdx, cameraInfo);
+			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+				try {
+					c = Camera.open(camIdx);
+				}
+				catch (RuntimeException e) {
+					Log.e("Image-ination MainActivity",
+							"Camera failed to open: " + e.getLocalizedMessage());
+				}
+			}
+		}
+		return c; // returns null if camera is unavailable
 	}
 	
 	// Create blank image/video file in app's image dir in internal storage and return path
-	private Uri CreateMediaFileUriInInternalStorage(int type) {
-		// path to /data/data/yourapp/app_data/imageDir
-		File mediaStorageDir = new File(getFilesDir(), "Imageination_Photos");
-		
-		// Remove if exists, the file MUST be created using the lines below
-		File f = new File(getFilesDir(), "Captured.jpg");
-		f.delete();
-		// Create new file
-		FileOutputStream fos = openFileOutput("Captured.jpg", Context.MODE_PRIVATE);
-		fos.close();
-		// Get reference to the file
-		File f = new File(getFilesDir(), "Captured.jpg");
+	private File CreateMediaFilePathInInternalStorage(int type) {
 		
 		// Create a media file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
-			mediaFile =
-					new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp
-						+ ".jpg");
+			mediaFile = new File(generateFilepath("IMG_" + timeStamp + ".jpg"));
 		}
 		else if (type == MEDIA_TYPE_VIDEO) {
-			mediaFile =
-					new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp
-						+ ".mp4");
+			mediaFile = new File(generateFilepath("VID_" + timeStamp + ".mp4"));
 		}
 		else {
 			return null;
 		}
 		
 		// return full path to media file
-		return Uri.fromFile(mediaFile);
+		return mediaFile;
 	}
 	
-	// camera button listener
-	public void LaunchCameraApp(View view) {
-		
-		// create Intent to take a picture and return control to the calling application
-		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		
-		fileUri = CreateMediaFileUriInInternalStorage(MEDIA_TYPE_IMAGE); // create a file to save the image
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-		// NOTE: camera will write photo to fileUri
-		
-		// start the image capture Intent
-		startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-	}
-	
-	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-	private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-		if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-			// Image captured and saved to fileUri specified in the Intent
-			Toast.makeText(this, "Image saved to:\n" + fileUri.toString(), Toast.LENGTH_LONG)
-					.show();
-			ImageView imgview = (ImageView) findViewById(R.id.photo_viewer);
+	public static void writeFile(File file, byte[] data) {
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(file);
+			out.write(data);
+		}
+		catch (Exception e) {
+			Log.e("Image-ination MainActivity", "Failed to write data", e);
+		}
+		finally {
 			try {
-				Bitmap bmp =
-						BitmapFactory.decodeStream(getContentResolver().openInputStream(fileUri));
-				imgview.setImageBitmap(null); // bizarre android witchcraft
-												// (http://stackoverflow.com/questions/2313148/imageview-setimageuri-does-not-work-when-trying-to-assign-a-r-drawable-x-uri)
-				imgview.setImageBitmap(bmp);
+				out.close();
 			}
-			catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
-			if (resultCode == RESULT_OK) {
-				// Video captured and saved to fileUri specified in the Intent
-				Toast.makeText(this, "Video saved to:\n" + data.getData(), Toast.LENGTH_LONG)
-						.show();
-			}
-			else if (resultCode == RESULT_CANCELED) {
-				// User cancelled the video capture
-			}
-			else {
-				// Video capture failed, advise user
-			}
+			catch (Exception e) {}
 		}
 	}
+	
+	private String generateFilepath(String title) {
+		return DIRECTORY + '/' + title;
+	}
+	
+	private PictureCallback mPicture = new PictureCallback() {
+		
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			
+			// // File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+			// File pictureFile = CreateMediaFilePathInInternalStorage(MEDIA_TYPE_IMAGE);
+			// if (pictureFile == null) {
+			// Log.d(TAG, "Error creating media file, check storage permissions.");
+			// return;
+			// }
+			//
+			// try {
+			// FileOutputStream fos = new FileOutputStream(pictureFile);
+			// fos.write(data);
+			// fos.close();
+			//
+			// // inserts image into gallery
+			// Images.Media.insertImage(getContentResolver(), pictureFile.getAbsolutePath(),
+			// pictureFile.getName(), "Photo taken by Image-ination");
+			//
+			// Toast.makeText(getApplicationContext(), "Picture Saved!", Toast.LENGTH_SHORT)
+			// .show();
+			// }
+			// catch (FileNotFoundException e) {
+			// Log.d(TAG, "File not found: " + e.getMessage());
+			// Toast.makeText(getApplicationContext(), "Error saving picture...",
+			// Toast.LENGTH_SHORT).show();
+			// }
+			// catch (IOException e) {
+			// Log.d(TAG, "Error accessing file: " + e.getMessage());
+			// Toast.makeText(getApplicationContext(), "Error saving picture...",
+			// Toast.LENGTH_SHORT).show();
+			// }
+			
+			writeFile(CreateMediaFilePathInInternalStorage(MEDIA_TYPE_IMAGE), data);
+			Toast.makeText(getApplicationContext(), "Picture Saved!", Toast.LENGTH_SHORT).show();
+			
+			camera.startPreview();
+		}
+	};
 	
 	/**
 	 * A placeholder fragment containing a simple view.

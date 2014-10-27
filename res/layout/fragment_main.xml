@@ -6,21 +6,18 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.jackandabhishek.image_ination.MainActivity$PlaceholderFragment" >
+    tools:context="com.jackandabhishek.image_ination.MainActivity$PlaceholderFragment"
+    android:orientation="vertical" >
 
-	    <TextView
-	        android:id="@+id/section_label"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
+	    <FrameLayout
+	    	android:id="@+id/camera_preview"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="0dp"
+	    	android:layout_weight="1" />    
 	    <Button 
 	        android:id="@+id/camera_button"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:onClick="LaunchCameraApp" 
+	        android:layout_gravity="center"
 	        android:text="@string/take_photo" />
-	    <ImageView 
-	        android:id="@+id/photo_viewer"
-	        android:layout_width="match_parent"
-	        android:layout_height="fill_parent"
-	        android:contentDescription="will display photo upon return from camera app"  />
 </LinearLayout>
