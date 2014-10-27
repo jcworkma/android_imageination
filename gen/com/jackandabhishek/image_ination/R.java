@@ -43,8 +43,9 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int fragment_main=0x7f030001;
-        public static final int fragment_navigation_drawer=0x7f030002;
+        public static final int fragment_browsephotos=0x7f030001;
+        public static final int fragment_camera=0x7f030002;
+        public static final int fragment_navigation_drawer=0x7f030003;
     }
     public static final class menu {
         public static final int global=0x7f070000;
@@ -60,6 +61,7 @@ public final class R {
         public static final int title_section1_takephoto=0x7f050001;
         public static final int title_section2_browsegallery=0x7f050002;
         public static final int title_section3_otherstuff=0x7f050003;
+        public static final int under_construction=0x7f050009;
     }
     public static final class style {
         /** 

@@ -38,12 +38,12 @@ import com.jackandabhishek.image_ination.R.id;
 public class MainActivity extends Activity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
 	
+	public static final int CAMERA_FRAGMENT_POSITION = 0;
+	public static final int BROWSEPHOTOS_FRAGMENT_POSITION = 1;
+	public static final int OTHERSTUFF_FRAGMENT_POSITION = 2;
+	
 	private final String TAG = "Image-ination MainActivity";
-	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final int MEDIA_TYPE_VIDEO = 2;
-	public static final String DCIM = Environment.getExternalStoragePublicDirectory(
-			Environment.DIRECTORY_DCIM).toString();
-	public static final String DIRECTORY = DCIM + "/Imageination";
+	
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
 	 */
@@ -53,9 +53,6 @@ public class MainActivity extends Activity implements
 	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
-	
-	private Camera mCamera;
-	private CameraPreview mPreview;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,64 +68,49 @@ public class MainActivity extends Activity implements
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
 		
-		if (!checkCameraHardware(getApplicationContext())) {
-			// camera does not exist on this device
-			Toast.makeText(getApplicationContext(), "No Cameras found", Toast.LENGTH_LONG).show();
-			System.exit(1);
-		}
 	}
 	
+	@Override
 	public void onResume() {
 		super.onResume();
-		
-		mCamera = getCameraInstance();
-		
-		if (mCamera == null) {
-			// camera is in use
-			Toast.makeText(getApplicationContext(), "Camera is in use", Toast.LENGTH_LONG).show();
-			System.exit(1);
-		}
-		mCamera.setDisplayOrientation(90);
-		
-		mPreview = new CameraPreview(getApplicationContext(), mCamera);
-		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-		preview.addView(mPreview);
-		
-		// Add a listener to the Capture button
-		Button captureButton = (Button) findViewById(id.camera_button);
-		captureButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// get an image from the camera
-				mCamera.takePicture(null, null, mPicture);
-			}
-		});
 	}
 	
+	@Override
 	public void onStop() {
 		super.onStop();
-		
-		// mCamera.release();
 	}
 	
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-				.replace(R.id.container, PlaceholderFragment.newInstance(position + 1)).commit();
+		switch (position) {
+			case CAMERA_FRAGMENT_POSITION:
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, CameraFragment.newInstance()).commit();
+				break;
+			case BROWSEPHOTOS_FRAGMENT_POSITION:
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, BrowsePhotosFragment.newInstance()).commit();
+				break;
+			case OTHERSTUFF_FRAGMENT_POSITION:
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+						.commit();
+				break;
+		}
+		
 	}
 	
 	public void onSectionAttached(int number) {
 		switch (number) {
-			case 1:
+			case CAMERA_FRAGMENT_POSITION:
 				mTitle = getString(R.string.title_section1_takephoto);
 				break;
-			case 2:
+			case BROWSEPHOTOS_FRAGMENT_POSITION:
 				mTitle = getString(R.string.title_section2_browsegallery);
 				break;
-			case 3:
+			case OTHERSTUFF_FRAGMENT_POSITION:
 				mTitle = getString(R.string.title_section3_otherstuff);
 				break;
 		}
@@ -166,123 +148,6 @@ public class MainActivity extends Activity implements
 		return super.onOptionsItemSelected(item);
 	}
 	
-	// from: http://developer.android.com/guide/topics/media/camera.html#manifest
-	/** Check if this device has a camera */
-	private boolean checkCameraHardware(Context context) {
-		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-			// this device has a camera
-			return true;
-		}
-		else {
-			// no camera on this device
-			return false;
-		}
-	}
-	
-	/** A safe way to get an instance of the Camera object. */
-	public static Camera getCameraInstance() {
-		int cameraCount = 0;
-		Camera c = null;
-		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-		cameraCount = Camera.getNumberOfCameras();
-		for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
-			Camera.getCameraInfo(camIdx, cameraInfo);
-			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-				try {
-					c = Camera.open(camIdx);
-				}
-				catch (RuntimeException e) {
-					Log.e("Image-ination MainActivity",
-							"Camera failed to open: " + e.getLocalizedMessage());
-				}
-			}
-		}
-		return c; // returns null if camera is unavailable
-	}
-	
-	// Create blank image/video file in app's image dir in internal storage and return path
-	private File CreateMediaFilePathInInternalStorage(int type) {
-		
-		// Create a media file name
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-		File mediaFile;
-		if (type == MEDIA_TYPE_IMAGE) {
-			mediaFile = new File(generateFilepath("IMG_" + timeStamp + ".jpg"));
-		}
-		else if (type == MEDIA_TYPE_VIDEO) {
-			mediaFile = new File(generateFilepath("VID_" + timeStamp + ".mp4"));
-		}
-		else {
-			return null;
-		}
-		
-		// return full path to media file
-		return mediaFile;
-	}
-	
-	public static void writeFile(File file, byte[] data) {
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(file);
-			out.write(data);
-		}
-		catch (Exception e) {
-			Log.e("Image-ination MainActivity", "Failed to write data", e);
-		}
-		finally {
-			try {
-				out.close();
-			}
-			catch (Exception e) {}
-		}
-	}
-	
-	private String generateFilepath(String title) {
-		return DIRECTORY + '/' + title;
-	}
-	
-	private PictureCallback mPicture = new PictureCallback() {
-		
-		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			
-			// // File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-			// File pictureFile = CreateMediaFilePathInInternalStorage(MEDIA_TYPE_IMAGE);
-			// if (pictureFile == null) {
-			// Log.d(TAG, "Error creating media file, check storage permissions.");
-			// return;
-			// }
-			//
-			// try {
-			// FileOutputStream fos = new FileOutputStream(pictureFile);
-			// fos.write(data);
-			// fos.close();
-			//
-			// // inserts image into gallery
-			// Images.Media.insertImage(getContentResolver(), pictureFile.getAbsolutePath(),
-			// pictureFile.getName(), "Photo taken by Image-ination");
-			//
-			// Toast.makeText(getApplicationContext(), "Picture Saved!", Toast.LENGTH_SHORT)
-			// .show();
-			// }
-			// catch (FileNotFoundException e) {
-			// Log.d(TAG, "File not found: " + e.getMessage());
-			// Toast.makeText(getApplicationContext(), "Error saving picture...",
-			// Toast.LENGTH_SHORT).show();
-			// }
-			// catch (IOException e) {
-			// Log.d(TAG, "Error accessing file: " + e.getMessage());
-			// Toast.makeText(getApplicationContext(), "Error saving picture...",
-			// Toast.LENGTH_SHORT).show();
-			// }
-			
-			writeFile(CreateMediaFilePathInInternalStorage(MEDIA_TYPE_IMAGE), data);
-			Toast.makeText(getApplicationContext(), "Picture Saved!", Toast.LENGTH_SHORT).show();
-			
-			camera.startPreview();
-		}
-	};
-	
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -309,14 +174,14 @@ public class MainActivity extends Activity implements
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+			View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
 			return rootView;
 		}
 		
 		@Override
 		public void onAttach(Activity activity) {
 			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+			((MainActivity) activity).onSectionAttached(OTHERSTUFF_FRAGMENT_POSITION);
 		}
 	}
 	

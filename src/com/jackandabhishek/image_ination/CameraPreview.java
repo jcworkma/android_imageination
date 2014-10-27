@@ -12,9 +12,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	
 	private final String TAG = "Image-ination CameraPreview";
 	private SurfaceHolder mHolder;
-	private Camera mCamera;
+	private CameraWrapper mCamera;
 	
-	public CameraPreview(Context context, Camera camera) {
+	public CameraPreview(Context context, CameraWrapper camera) {
 		super(context);
 		mCamera = camera;
 		
@@ -29,9 +29,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	public void surfaceCreated(SurfaceHolder holder) {
 		// The Surface has been created, now tell the camera where to draw the preview.
 		try {
-			
-			mCamera.setPreviewDisplay(holder);
-			mCamera.startPreview();
+			mCamera.mCamera.setPreviewDisplay(holder);
+			mCamera.mCamera.startPreview();
 		}
 		catch (IOException e) {
 			Log.d(TAG, "Error setting camera preview: " + e.getMessage());
@@ -40,7 +39,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// empty. Take care of releasing the Camera preview in your activity.
-		mCamera.release();
 	}
 	
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
@@ -54,7 +52,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		
 		// stop preview before making changes
 		try {
-			mCamera.stopPreview();
+			mCamera.mCamera.stopPreview();
 		}
 		catch (Exception e) {
 			// ignore: tried to stop a non-existent preview
@@ -65,8 +63,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		
 		// start preview with new settings
 		try {
-			mCamera.setPreviewDisplay(mHolder);
-			mCamera.startPreview();
+			mCamera.mCamera.setPreviewDisplay(mHolder);
+			mCamera.mCamera.startPreview();
 			
 		}
 		catch (Exception e) {
