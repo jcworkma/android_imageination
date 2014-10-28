@@ -30,6 +30,8 @@ public class EditImageActivity extends Activity {
 	
 	public static final String IMAGE_KEY = "IMAGE_KEY";
 	private Bitmap CurrentImage;
+	private ImageProcessor imageProcessor;
+	private int FilterIndex = 0;
 	
 	/**
 	 * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -70,11 +72,13 @@ public class EditImageActivity extends Activity {
 			@Override
 			public void onSwipeLeft() {
 				Toast.makeText(getApplicationContext(), "SWIPE LEFT!", Toast.LENGTH_SHORT).show();
+				ApplyFilter(-1);
 			}
 			
 			@Override
 			public void onSwipeRight() {
 				Toast.makeText(getApplicationContext(), "SWIPE RIGHT!", Toast.LENGTH_SHORT).show();
+				ApplyFilter(1);
 			}
 		});
 		
@@ -88,7 +92,9 @@ public class EditImageActivity extends Activity {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		iv.setImageBitmap(CurrentImage);
+		UpdateImage();
+		
+		imageProcessor = new ImageProcessor(this, CurrentImage);
 		
 		// setupActionBar();
 		
@@ -157,6 +163,21 @@ public class EditImageActivity extends Activity {
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
 		// findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+	}
+	
+	private void RecycleImage() {
+		CurrentImage.recycle();
+	}
+	
+	private void UpdateImage() {
+		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
+		iv.setImageBitmap(CurrentImage);
+	}
+	
+	private void ApplyFilter(int direction) {
+		FilterIndex += direction;
+		CurrentImage = imageProcessor.ApplyFilterToBitmap(FilterIndex);
+		UpdateImage();
 	}
 	
 	// @Override
