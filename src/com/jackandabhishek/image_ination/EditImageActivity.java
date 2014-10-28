@@ -1,21 +1,21 @@
 package com.jackandabhishek.image_ination;
 
 import java.io.File;
-import java.net.URI;
+import java.io.FileInputStream;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.jackandabhishek.image_ination.util.SystemUiHider;
@@ -26,17 +26,10 @@ import com.jackandabhishek.image_ination.util.SystemUiHider;
  * 
  * @see SystemUiHider
  */
-public class EditImageActivity extends Activity implements OnClickListener {
+public class EditImageActivity extends Activity {
 	
 	public static final String IMAGE_KEY = "IMAGE_KEY";
-	private Uri CurrentPhoto;
-	
-	// much thanks to gav from http://stackoverflow.com/questions/937313/android-basic-gesture-detection
-	private static final int SWIPE_MIN_DISTANCE = 120;
-	private static final int SWIPE_MAX_OFF_PATH = 250;
-	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-	private GestureDetector gestureDetector;
-	View.OnTouchListener gestureListener;
+	private Bitmap CurrentImage;
 	
 	/**
 	 * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -70,6 +63,33 @@ public class EditImageActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_edit_image);
+		
+		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
+		iv.setOnTouchListener(new OnSwipeTouchListener(getApplicationContext()) {
+			
+			@Override
+			public void onSwipeLeft() {
+				Toast.makeText(getApplicationContext(), "SWIPE LEFT!", Toast.LENGTH_SHORT).show();
+			}
+			
+			@Override
+			public void onSwipeRight() {
+				Toast.makeText(getApplicationContext(), "SWIPE RIGHT!", Toast.LENGTH_SHORT).show();
+			}
+		});
+		
+		CurrentImage = null;
+		String filename = getIntent().getStringExtra(IMAGE_KEY);
+		try {
+			FileInputStream is = this.openFileInput(filename);
+			CurrentImage = BitmapFactory.decodeStream(is);
+			is.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		iv.setImageBitmap(CurrentImage);
+		
 		// setupActionBar();
 		
 		// final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -137,23 +157,6 @@ public class EditImageActivity extends Activity implements OnClickListener {
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
 		// findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-		
-		// Gesture detection
-		gestureDetector = new GestureDetector(this, new MyGestureDetector());
-		gestureListener = new View.OnTouchListener() {
-			
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
-			}
-		};
-		
-		Intent intent = getIntent();
-		String path_to_image = intent.getStringExtra(IMAGE_KEY);
-		CurrentPhoto = Uri.parse(path_to_image);
-		File f = new File(path_to_image);
-		if (f.exists()) {
-			Toast.makeText(getApplicationContext(), "EXISTS", Toast.LENGTH_SHORT).show();
-		}
 	}
 	
 	// @Override
@@ -165,18 +168,6 @@ public class EditImageActivity extends Activity implements OnClickListener {
 	// // are available.
 	// delayedHide(100);
 	// }
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-		// Do this for each view added to the grid
-		ImageView imageView = (ImageView) findViewById(R.id.edit_image_view);
-		imageView.setOnClickListener(this);
-		imageView.setOnTouchListener(gestureListener);
-		imageView.setImageBitmap(null);
-		imageView.setImageBitmap(ImageScaler.decodeSampledBitmapFromUri(getContentResolver(),
-				CurrentPhoto, imageView));
-	}
 	
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -240,41 +231,4 @@ public class EditImageActivity extends Activity implements OnClickListener {
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 	
-	@Override
-	public void onClick(View v) {
-		Toast.makeText(getApplicationContext(), "TOUCH!", Toast.LENGTH_SHORT).show();
-		// Filter f = (Filter) v.getTag();
-		// EditImageActivity.show(this, input, f);
-		
-	}
-	
-	class MyGestureDetector extends SimpleOnGestureListener {
-		
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			try {
-				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-					return false;
-				// right to left swipe
-				if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
-					&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					Toast.makeText(EditImageActivity.this, "Left Swipe", Toast.LENGTH_SHORT).show();
-				}
-				else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
-					&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					Toast.makeText(EditImageActivity.this, "Right Swipe", Toast.LENGTH_SHORT)
-							.show();
-				}
-			}
-			catch (Exception e) {
-				// nothing
-			}
-			return false;
-		}
-		
-		@Override
-		public boolean onDown(MotionEvent e) {
-			return true;
-		}
-	}
 }

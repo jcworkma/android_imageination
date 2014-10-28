@@ -1,23 +1,22 @@
 package com.jackandabhishek.image_ination;
 
+import java.io.FileOutputStream;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
 public class PhotoBrowserFragment extends Fragment {
 	
-	public Uri CurrentPhoto;
+	public Bitmap CurrentImage;
 	
 	/**
 	 * Returns a new instance of this fragment for the given section number.
@@ -74,9 +73,31 @@ public class PhotoBrowserFragment extends Fragment {
 	}
 	
 	public void LaunchEditImageActivity(View v) {
-		Intent intent = new Intent(getActivity(), EditImageActivity.class);
-		intent.putExtra(EditImageActivity.IMAGE_KEY, CurrentPhoto.toString());
-		startActivity(intent);
+		ClearImageView();
+		// Intent intent = new Intent(getActivity(), EditImageActivity.class);
+		// intent.putExtra(EditImageActivity.IMAGE_KEY, CurrentImage.getPath());
+		// // intent.putExtra(EditImageActivity.IMAGE_KEY, CurrentPhoto.toString());
+		// startActivity(intent);
+		
+		try {
+			// Write file
+			
+			String filename = "bitmap12345.png";
+			FileOutputStream stream = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+			CurrentImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			
+			// Cleanup
+			stream.close();
+			CurrentImage.recycle();
+			
+			// Pop intent
+			Intent in1 = new Intent(getActivity(), EditImageActivity.class);
+			in1.putExtra(EditImageActivity.IMAGE_KEY, filename);
+			startActivity(in1);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void ClearImageView() {
@@ -107,7 +128,7 @@ public class PhotoBrowserFragment extends Fragment {
 							(ImageView) getActivity().findViewById(R.id.browse_gallery_imageview));
 			if (bitmap != null) {
 				SetImageView(bitmap);
-				CurrentPhoto = chosenImageUri;
+				CurrentImage = bitmap;
 			}
 		}
 	}
