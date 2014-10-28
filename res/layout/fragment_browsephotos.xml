@@ -1,25 +1,90 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jackandabhishek.image_ination.MainActivity$PlaceholderFragment"
     android:orientation="vertical" >
 
-	    <Button 
-	        android:id="@+id/browse_gallery_button"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center"
-	        android:text="@string/title_section2_browsegallery" />
-	    <ImageView
-	        android:id="@+id/browse_gallery_imageview"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center"
-	        android:contentDescription="picture from gallery" />
+
+    <RelativeLayout
+        android:id="@+id/browsephotos_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true" >
+		<!-- horizontal bar -->	
+        <View
+            android:id="@+id/horizontalbar"
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:layout_marginLeft="4dip"
+            android:layout_marginRight="4dip"
+            android:background="?android:attr/dividerVertical"
+            android:layout_alignParentTop="true"/>
+        <!-- vertical bar -->
+        <View
+            android:id="@+id/ViewColorPickerHelper"
+            android:layout_width="1dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="4dip"
+            android:layout_marginTop="4dip"
+            android:background="?android:attr/dividerVertical" 
+            android:layout_centerHorizontal="true"/>
+        <Button
+            android:id="@+id/browse_gallery_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/ViewColorPickerHelper"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/title_section2_browsegallery" 
+            android:layout_alignParentBottom="true"/>
+        <Button
+            android:id="@+id/edit_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/edit_image" 
+            android:layout_alignParentBottom="true" 
+            android:layout_toRightOf="@id/ViewColorPickerHelper"
+    		android:onClick="LaunchEditImageActivity" />
+    </RelativeLayout>
+    
+    
+    <ImageView
+        android:id="@+id/browse_gallery_imageview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_above="@id/browsephotos_buttons"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:contentDescription="@string/under_construction" />
+
+<!--     <LinearLayout -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:orientation="horizontal" > -->
+	
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/browse_gallery_button" -->
+<!-- 	        android:layout_width="wrap_content" -->
+<!-- 	        android:layout_height="wrap_content" -->
+<!-- 	        android:layout_gravity="center" -->
+<!-- 	        android:text="@string/title_section2_browsegallery" /> -->
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/edit_photo_button" -->
+<!-- 	        android:layout_width="wrap_content" -->
+<!-- 	        android:layout_height="wrap_content" -->
+<!-- 	        android:layout_gravity="center" -->
+<!-- 	        android:text="@string/edit_image" /> -->
+	
+<!-- 	</LinearLayout> -->
 	    
-</LinearLayout>
+</RelativeLayout>
