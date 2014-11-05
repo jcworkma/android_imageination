@@ -57,8 +57,8 @@ public class MainActivity extends Activity implements
 		super.onStop();
 	}
 	
-	@Override
-	public void onNavigationDrawerItemSelected(int position) {
+	private void LoadFragment(int position) {
+		
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
 		switch (position) {
@@ -76,7 +76,11 @@ public class MainActivity extends Activity implements
 						.commit();
 				break;
 		}
-		
+	}
+	
+	@Override
+	public void onNavigationDrawerItemSelected(int position) {
+		LoadFragment(position);
 	}
 	
 	public void onSectionAttached(int number) {

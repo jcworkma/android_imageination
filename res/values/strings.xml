@@ -16,5 +16,6 @@
     <string name="save">Save</string>
     <string name="color">Color</string>
     <string name="filter">Filter</string>
+    <string name="save_to_gallery">Save to Gallery</string>
 
 </resources>

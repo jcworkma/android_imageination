@@ -1,10 +1,15 @@
 package com.jackandabhishek.image_ination;
 
 import java.io.IOException;
+import android.app.Activity;
 import android.content.Context;
+import android.hardware.Camera.Parameters;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 /** A basic Camera preview class */
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
@@ -40,7 +45,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		// empty. Take care of releasing the Camera preview in your activity.
 	}
 	
-	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		// If your preview can change or rotate, take care of those events here.
 		// Make sure to stop the preview before resizing or reformatting it.
 		
@@ -59,6 +64,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		
 		// set preview size and make any resize, rotate or
 		// reformatting changes here
+		mCamera.reformatCamera(width, height);
 		
 		// start preview with new settings
 		try {

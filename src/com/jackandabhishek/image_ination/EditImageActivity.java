@@ -5,23 +5,16 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 import com.jackandabhishek.image_ination.util.SystemUiHider;
 
@@ -35,12 +28,8 @@ public class EditImageActivity extends Activity {
 	
 	public static final String IMAGE_KEY = "IMAGE_KEY";
 	private Bitmap CurrentImage;
+	private ImageStorage imageStorage;
 	private ImageProcessor imageProcessor;
-	private int FilterIndex = 0;
-	
-	PopupWindow filterPopup;
-	PopupWindow savePopup;
-	PopupWindow colorPopup;
 	
 	private PopupMenu filterPopupMenu;
 	private PopupMenu savePopupMenu;
@@ -79,22 +68,6 @@ public class EditImageActivity extends Activity {
 		
 		setContentView(R.layout.activity_edit_image);
 		
-		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
-		// iv.setOnTouchListener(new OnSwipeTouchListener(getApplicationContext()) {
-		//
-		// @Override
-		// public void onSwipeLeft() {
-		// Toast.filterText(getApplicationContext(), "SWIPE LEFT!", Toast.LENGTH_SHORT).show();
-		// ApplyFilter(-1);
-		// }
-		//
-		// @Override
-		// public void onSwipeRight() {
-		// Toast.filterText(getApplicationContext(), "SWIPE RIGHT!", Toast.LENGTH_SHORT).show();
-		// ApplyFilter(1);
-		// }
-		// });
-		
 		// InitPopupWindows();
 		InitPopupMenus();
 		
@@ -114,11 +87,14 @@ public class EditImageActivity extends Activity {
 		// class used to apply filters
 		imageProcessor = new ImageProcessor(this, CurrentImage);
 		
+		// class used to save images and their changes
+		imageStorage = new ImageStorage();
+		
 		// all the rest = android default full-screen activity stuff
 		setupActionBar();
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = iv;
+		final View contentView = findViewById(R.id.edit_image_view);
 		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -270,6 +246,26 @@ public class EditImageActivity extends Activity {
 		@Override
 		public boolean onMenuItemClick(MenuItem arg0) {
 			switch (arg0.getItemId()) {
+				case ImageStorage.GALLERY:
+					if (imageStorage.SaveBitmapToGallery(CurrentImage, getContentResolver())) {
+						Toast.makeText(getApplicationContext(), "Saved to Gallery!",
+								Toast.LENGTH_SHORT).show();
+					}
+					else {
+						Toast.makeText(getApplicationContext(), "Something went wrong...",
+								Toast.LENGTH_SHORT).show();
+					}
+					break;
+				case ImageStorage.DATABASE:
+					if (imageStorage.SaveBitmapToDatabase(CurrentImage)) {
+						Toast.makeText(getApplicationContext(), "Saved to Database!",
+								Toast.LENGTH_SHORT).show();
+					}
+					else {
+						Toast.makeText(getApplicationContext(), "Something went wrong...",
+								Toast.LENGTH_SHORT).show();
+					}
+					break;
 				default:
 					Toast.makeText(getApplicationContext(), "what?", Toast.LENGTH_SHORT).show();
 					break;
@@ -404,6 +400,7 @@ public class EditImageActivity extends Activity {
 	
 	private void UpdateImage() {
 		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
+		// Canvas c = new Canvas(CurrentImage);
 		iv.setImageBitmap(CurrentImage);
 	}
 	

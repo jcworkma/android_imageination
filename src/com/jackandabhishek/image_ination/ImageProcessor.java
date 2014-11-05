@@ -22,8 +22,8 @@ public class ImageProcessor {
 	public static final int SEPIA_GREEN = 3;
 	public static final int SEPIA_RED = 4;
 	
-	// public static final int BLUR = 5;
 	// public static final int GREYSCALE = 4;
+	// public static final int BLUR = 5;
 	
 	public ImageProcessor(EditImageActivity edit_image_activity, Bitmap toProcess) {
 		mRS = RenderScript.create(edit_image_activity);
@@ -39,10 +39,6 @@ public class ImageProcessor {
 	
 	/* Many thanks to http://xjaphx.wordpress.com/2011/06/21/image-processing-grayscale-image-on-the-fly/ */
 	public Bitmap Greyscale() {
-		// // constant factors
-		// final double GS_RED = 0.299;
-		// final double GS_GREEN = 0.587;
-		// final double GS_BLUE = 0.114;
 		
 		RenderScriptGreyscale greyscale =
 				new RenderScriptGreyscale(mRS, mInPixelsAllocation, mOutPixelsAllocation);
@@ -53,33 +49,25 @@ public class ImageProcessor {
 		
 		bmOut = greyscale.Run(bmOut);
 		return bmOut;
-		// // pixel information
-		// int A, R, G, B;
-		// int pixel;
-		//
-		// // get image size
-		// int width = inputBitmap.getWidth();
-		// int height = inputBitmap.getHeight();
-		//
-		// // scan through every single pixel
-		// for (int x = 0; x < width; ++x) {
-		// for (int y = 0; y < height; ++y) {
-		// // get one pixel color
-		// pixel = inputBitmap.getPixel(x, y);
-		// // retrieve color of all channels
-		// A = Color.alpha(pixel);
-		// R = Color.red(pixel);
-		// G = Color.green(pixel);
-		// B = Color.blue(pixel);
-		// // take conversion up to one single value
-		// R = G = B = (int) (GS_RED * R + GS_GREEN * G + GS_BLUE * B);
-		// // set new pixel color to output bitmap
-		// bmOut.setPixel(x, y, Color.argb(A, R, G, B));
-		// }
-		// }
-		//
-		// // return final image
-		// return bmOut;
+		
+		/**
+		 * Done without RenderScript:
+		 */
+		/*
+		 * // constant factors final double GS_RED = 0.299; final double GS_GREEN = 0.587; final double GS_BLUE = 0.114;
+		 * 
+		 * // pixel information int A, R, G, B; int pixel;
+		 * 
+		 * // get image size int width = inputBitmap.getWidth(); int height = inputBitmap.getHeight();
+		 * 
+		 * // scan through every single pixel for (int x = 0; x < width; ++x) { for (int y = 0; y < height; ++y) { //
+		 * get one pixel color pixel = inputBitmap.getPixel(x, y); // retrieve color of all channels A =
+		 * Color.alpha(pixel); R = Color.red(pixel); G = Color.green(pixel); B = Color.blue(pixel); // take conversion
+		 * up to one single value R = G = B = (int) (GS_RED * R + GS_GREEN * G + GS_BLUE * B); // set new pixel color to
+		 * output bitmap bmOut.setPixel(x, y, Color.argb(A, R, G, B)); } }
+		 * 
+		 * // return final image return bmOut;
+		 */
 	}
 	
 	public Bitmap Blur() {
