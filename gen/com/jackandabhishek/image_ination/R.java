@@ -19,7 +19,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int metaButtonBarStyle=0x7f010000;
     }
     public static final class color {
-        public static final int black_overlay=0x7f040000;
+        public static final int black_overlay=0x7f050000;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -29,14 +29,14 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively).
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f060000;
+        public static final int activity_vertical_margin=0x7f060001;
         /** 
          Per the design guidelines, navigation drawers should be between 240dp and 320dp:
          https://developer.android.com/design/patterns/navigation-drawer.html
     
          */
-        public static final int navigation_drawer_width=0x7f050002;
+        public static final int navigation_drawer_width=0x7f060002;
     }
     public static final class drawable {
         public static final int drawer_shadow=0x7f020000;
@@ -44,20 +44,24 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020002;
     }
     public static final class id {
-        public static final int ViewColorPickerHelper=0x7f090006;
-        public static final int action_example=0x7f09000d;
-        public static final int action_settings=0x7f09000c;
-        public static final int browse_gallery_button=0x7f090007;
-        public static final int browse_gallery_imageview=0x7f090009;
-        public static final int browsephotos_buttons=0x7f090004;
-        public static final int camera_button=0x7f09000b;
-        public static final int camera_preview=0x7f09000a;
-        public static final int container=0x7f090002;
-        public static final int drawer_layout=0x7f090001;
-        public static final int edit_image_button=0x7f090008;
-        public static final int edit_image_view=0x7f090000;
-        public static final int horizontalbar=0x7f090005;
-        public static final int navigation_drawer=0x7f090003;
+        public static final int ViewColorPickerHelper=0x7f0a000a;
+        public static final int action_example=0x7f0a0011;
+        public static final int action_settings=0x7f0a0010;
+        public static final int browse_gallery_button=0x7f0a000b;
+        public static final int browse_gallery_imageview=0x7f0a000d;
+        public static final int browsephotos_buttons=0x7f0a0008;
+        public static final int camera_button=0x7f0a000f;
+        public static final int camera_preview=0x7f0a000e;
+        public static final int container=0x7f0a0006;
+        public static final int drawer_layout=0x7f0a0005;
+        public static final int edit_image_button=0x7f0a000c;
+        public static final int edit_image_color=0x7f0a0002;
+        public static final int edit_image_filter=0x7f0a0003;
+        public static final int edit_image_save=0x7f0a0004;
+        public static final int edit_image_view=0x7f0a0000;
+        public static final int fullscreen_content_controls=0x7f0a0001;
+        public static final int horizontalbar=0x7f0a0009;
+        public static final int navigation_drawer=0x7f0a0007;
     }
     public static final class layout {
         public static final int activity_edit_image=0x7f030000;
@@ -67,24 +71,29 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int fragment_navigation_drawer=0x7f030004;
     }
     public static final class menu {
-        public static final int global=0x7f080000;
-        public static final int main=0x7f080001;
+        public static final int global=0x7f090000;
+        public static final int main=0x7f090001;
+    }
+    public static final class raw {
+        public static final int renderscriptblur=0x7f040000;
+        public static final int renderscriptgreyscale=0x7f040001;
     }
     public static final class string {
-        public static final int action_example=0x7f060006;
-        public static final int action_settings=0x7f060007;
-        public static final int app_name=0x7f060000;
-        public static final int dummy_button=0x7f06000c;
-        public static final int dummy_content=0x7f06000d;
-        public static final int edit_image=0x7f06000a;
-        public static final int navigation_drawer_close=0x7f060005;
-        public static final int navigation_drawer_open=0x7f060004;
-        public static final int take_photo=0x7f060008;
-        public static final int title_activity_edit_image=0x7f06000b;
-        public static final int title_section1_takephoto=0x7f060001;
-        public static final int title_section2_browsegallery=0x7f060002;
-        public static final int title_section3_otherstuff=0x7f060003;
-        public static final int under_construction=0x7f060009;
+        public static final int action_example=0x7f070006;
+        public static final int action_settings=0x7f070007;
+        public static final int app_name=0x7f070000;
+        public static final int color=0x7f07000d;
+        public static final int edit_image=0x7f07000a;
+        public static final int filter=0x7f07000e;
+        public static final int navigation_drawer_close=0x7f070005;
+        public static final int navigation_drawer_open=0x7f070004;
+        public static final int save=0x7f07000c;
+        public static final int take_photo=0x7f070008;
+        public static final int title_activity_edit_image=0x7f07000b;
+        public static final int title_section1_takephoto=0x7f070001;
+        public static final int title_section2_browsegallery=0x7f070002;
+        public static final int title_section3_otherstuff=0x7f070003;
+        public static final int under_construction=0x7f070009;
     }
     public static final class style {
         /** 
@@ -111,15 +120,15 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
-        public static final int ButtonBar=0x7f070003;
-        public static final int ButtonBarButton=0x7f070004;
-        public static final int FullscreenActionBarStyle=0x7f070005;
-        public static final int FullscreenTheme=0x7f070002;
+        public static final int AppTheme=0x7f080001;
+        public static final int ButtonBar=0x7f080003;
+        public static final int ButtonBarButton=0x7f080004;
+        public static final int FullscreenActionBarStyle=0x7f080005;
+        public static final int FullscreenTheme=0x7f080002;
     }
     public static final class styleable {
         /** 

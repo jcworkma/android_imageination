@@ -22,29 +22,43 @@
          android:fitsSystemWindows.
     -->
 
-<!--     <FrameLayout -->
-<!--         android:layout_width="match_parent" -->
-<!--         android:layout_height="match_parent" -->
-<!--         android:fitsSystemWindows="true" > -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" >
 
-<!--         <LinearLayout -->
-<!--             android:id="@+id/fullscreen_content_controls" -->
-<!--             style="?metaButtonBarStyle" -->
-<!--             android:layout_width="match_parent" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:layout_gravity="bottom|center_horizontal" -->
-<!--             android:background="@color/black_overlay" -->
-<!--             android:orientation="horizontal" -->
-<!--             tools:ignore="UselessParent" > -->
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="?metaButtonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@color/black_overlay"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent" >
 
-<!--             <Button -->
-<!--                 android:id="@+id/dummy_button" -->
-<!--                 style="?metaButtonBarButtonStyle" -->
-<!--                 android:layout_width="0dp" -->
-<!--                 android:layout_height="wrap_content" -->
-<!--                 android:layout_weight="1" -->
-<!--                 android:text="@string/dummy_button" /> -->
-<!--         </LinearLayout> -->
-<!--     </FrameLayout> -->
+            <Button
+                android:id="@+id/edit_image_color"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/color" />
+            <Button
+                android:id="@+id/edit_image_filter"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/filter" />
+            <Button
+                android:id="@+id/edit_image_save"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save" />
+        </LinearLayout>
+    </FrameLayout>
 
 </FrameLayout>
