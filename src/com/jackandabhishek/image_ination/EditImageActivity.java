@@ -3,15 +3,19 @@ package com.jackandabhishek.image_ination;
 import java.io.FileInputStream;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.NavUtils;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -33,56 +37,33 @@ public class EditImageActivity extends Activity {
 	
 	private PopupMenu filterPopupMenu;
 	private PopupMenu savePopupMenu;
-	private PopupMenu colorPopupMenu;
+	// private PopupMenu colorPopupMenu;
 	
-	/**
-	 * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-	 */
-	private static final boolean AUTO_HIDE = false;
+	// drawing path
+	private Path drawPath;
+	// drawing and canvas paint
+	private Paint drawPaint, canvasPaint;
+	// initial color
+	private int paintColor = 0xFF660000;
+	// canvas
+	private Canvas drawCanvas;
+	// canvas bitmap
+	private Bitmap canvasBitmap;
 	
-	/**
-	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after user interaction before hiding the system
-	 * UI.
-	 */
-	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-	
-	/**
-	 * If set, will toggle the system UI visibility upon interaction. Otherwise, will show the system UI visibility upon
-	 * interaction.
-	 */
-	private static final boolean TOGGLE_ON_CLICK = true;
-	
-	/**
-	 * The flags to pass to {@link SystemUiHider#getInstance}.
-	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-	
-	/**
-	 * The instance of the {@link SystemUiHider} for this activity.
-	 */
 	private SystemUiHider mSystemUiHider;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_edit_image);
 		
-		// InitPopupWindows();
 		InitPopupMenus();
-		
-		// load image from intent
-		CurrentImage = null;
-		String filename = getIntent().getStringExtra(IMAGE_KEY);
-		try {
-			FileInputStream is = this.openFileInput(filename);
-			CurrentImage = BitmapFactory.decodeStream(is);
-			is.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		loadImageFromIntent();
 		UpdateImage();
+		
+		final View controlsView = findViewById(R.id.fullscreen_content_controls);
+		final View contentView = findViewById(R.id.edit_image_view);
 		
 		// class used to apply filters
 		imageProcessor = new ImageProcessor(this, CurrentImage);
@@ -92,9 +73,7 @@ public class EditImageActivity extends Activity {
 		
 		// all the rest = android default full-screen activity stuff
 		setupActionBar();
-		
-		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = findViewById(R.id.edit_image_view);
+		getActionBar().setTitle("Image-ination Edit");
 		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -132,46 +111,35 @@ public class EditImageActivity extends Activity {
 							// controls.
 							controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
 						}
-						
-						if (visible && AUTO_HIDE) {
-							// Schedule a hide().
-							delayedHide(AUTO_HIDE_DELAY_MILLIS);
-						}
 					}
 				});
 		
-		// Set up the user interaction to manually show or hide the system UI.
-		contentView.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View view) {
-				if (TOGGLE_ON_CLICK) {
-					mSystemUiHider.toggle();
-				}
-				else {
-					mSystemUiHider.show();
-				}
-			}
-		});
-		
-		// Upon interacting with UI controls, delay any scheduled hide()
-		// operations to prevent the jarring behavior of controls going away
-		// while interacting with the UI.
-		// findViewById(R.id.edit_image_filter).setOnTouchListener(mFilterButtonListener);
-		// findViewById(R.id.edit_image_save).setOnTouchListener(mSaveButtonListener);
-		// findViewById(R.id.edit_image_color).setOnTouchListener(mColorButtonListener);
+	}
+	
+	private void loadImageFromIntent() {
+		// load image from intent
+		CurrentImage = null;
+		String filename = getIntent().getStringExtra(IMAGE_KEY);
+		try {
+			FileInputStream is = this.openFileInput(filename);
+			CurrentImage = BitmapFactory.decodeStream(is);
+			is.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void InitPopupMenus() {
-		// color menu
-		colorPopupMenu =
-				new PopupMenu(getApplicationContext(), findViewById(R.id.edit_image_color));
-		colorPopupMenu.getMenu().add(Menu.NONE, 0, Menu.NONE, "None");
-		colorPopupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "Red");
-		colorPopupMenu.getMenu().add(Menu.NONE, 2, Menu.NONE, "Green");
-		colorPopupMenu.getMenu().add(Menu.NONE, 3, Menu.NONE, "Blue");
-		colorPopupMenu.setOnMenuItemClickListener(colorMenuClicked);
-		findViewById(R.id.edit_image_color).setOnClickListener(colorButtonClicked);
+		// // color menu
+		// colorPopupMenu =
+		// new PopupMenu(getApplicationContext(), findViewById(R.id.edit_image_color));
+		// colorPopupMenu.getMenu().add(Menu.NONE, 0, Menu.NONE, "None");
+		// colorPopupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "Red");
+		// colorPopupMenu.getMenu().add(Menu.NONE, 2, Menu.NONE, "Green");
+		// colorPopupMenu.getMenu().add(Menu.NONE, 3, Menu.NONE, "Blue");
+		// colorPopupMenu.setOnMenuItemClickListener(colorMenuClicked);
+		// findViewById(R.id.edit_image_color).setOnClickListener(colorButtonClicked);
 		// filter menu
 		filterPopupMenu =
 				new PopupMenu(getApplicationContext(), findViewById(R.id.edit_image_filter));
@@ -182,6 +150,10 @@ public class EditImageActivity extends Activity {
 		filterPopupMenu.getMenu().add(Menu.NONE, ImageProcessor.SEPIA_GREEN, Menu.NONE,
 				"Sepia Green");
 		filterPopupMenu.getMenu().add(Menu.NONE, ImageProcessor.SEPIA_RED, Menu.NONE, "Sepia Red");
+		filterPopupMenu.getMenu().add(Menu.NONE, ImageProcessor.SNOW_EFFECT, Menu.NONE,
+				"Snow Effect");
+		filterPopupMenu.getMenu()
+				.add(Menu.NONE, ImageProcessor.REFLECTION, Menu.NONE, "Reflection");
 		filterPopupMenu.setOnMenuItemClickListener(filterMenuClicked);
 		findViewById(R.id.edit_image_filter).setOnClickListener(filterButtonClicked);
 		// save menu
@@ -190,6 +162,45 @@ public class EditImageActivity extends Activity {
 		savePopupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "To Database");
 		savePopupMenu.setOnMenuItemClickListener(saveMenuClicked);
 		findViewById(R.id.edit_image_save).setOnClickListener(saveButtonClicked);
+	}
+	
+	private void RecycleImage() {
+		CurrentImage.recycle();
+	}
+	
+	private void UpdateImage() {
+		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
+		iv.setImageBitmap(CurrentImage);
+	}
+	
+	/**
+	 * Set up the {@link android.app.ActionBar}, if the API is available.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void setupActionBar() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			// Show the Up button in the action bar.
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		if (id == android.R.id.home) {
+			// This ID represents the Home or Up button. In the case of this
+			// activity, the Up button is shown. Use NavUtils to allow users
+			// to navigate up one level in the application structure. For
+			// more details, see the Navigation pattern on Android Design:
+			//
+			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
+			//
+			// TODO: If Settings has multiple levels, Up should navigate up
+			// that hierarchy.
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	PopupMenu.OnMenuItemClickListener filterMenuClicked = new PopupMenu.OnMenuItemClickListener() {
@@ -217,6 +228,12 @@ public class EditImageActivity extends Activity {
 					break;
 				case ImageProcessor.SEPIA_RED:
 					CurrentImage = imageProcessor.SepiaRed();
+					break;
+				case ImageProcessor.SNOW_EFFECT:
+					CurrentImage = imageProcessor.SnowEffect();
+					break;
+				case ImageProcessor.REFLECTION:
+					CurrentImage = imageProcessor.Reflection();
 					break;
 				default:
 					Toast.makeText(getApplicationContext(), "uh oh...", Toast.LENGTH_SHORT).show();
@@ -284,14 +301,14 @@ public class EditImageActivity extends Activity {
 		}
 	};
 	
-	View.OnClickListener colorButtonClicked = new View.OnClickListener() {
-		
-		@Override
-		public void onClick(View arg0) {
-			colorPopupMenu.show();
-			return;
-		}
-	};
+	// View.OnClickListener colorButtonClicked = new View.OnClickListener() {
+	//
+	// @Override
+	// public void onClick(View arg0) {
+	// colorPopupMenu.show();
+	// return;
+	// }
+	// };
 	
 	View.OnClickListener saveButtonClicked = new View.OnClickListener() {
 		
@@ -394,71 +411,69 @@ public class EditImageActivity extends Activity {
 		}
 	};
 	
-	private void RecycleImage() {
-		CurrentImage.recycle();
-	}
-	
-	private void UpdateImage() {
-		ImageView iv = (ImageView) findViewById(R.id.edit_image_view);
-		// Canvas c = new Canvas(CurrentImage);
-		iv.setImageBitmap(CurrentImage);
-	}
-	
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		
-		// Trigger the initial hide() shortly after the activity has been
-		// created, to briefly hint to the user that UI controls
-		// are available.
-		delayedHide(100);
-	}
-	
 	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
+	 * Custom view meant for adding drawing functionality to Edit Image Tutorial was followed here:
+	 * http://code.tutsplus.com/tutorials/android-sdk-create-a-drawing-app-interface-creation--mobile-19021 Error
+	 * encountered when inflating view
+	 * 
+	 * @author Jack Workman
+	 * 
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			// Show the Up button in the action bar.
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+	public class DrawingView extends View {
+		
+		public DrawingView(Context context, AttributeSet attrs) {
+			super(context, attrs);
+			setupDrawing();
 		}
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if (id == android.R.id.home) {
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			// TODO: If Settings has multiple levels, Up should navigate up
-			// that hierarchy.
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
+		
+		private void setupDrawing() {
+			drawPath = new Path();
+			drawPaint = new Paint();
+			drawPaint.setColor(paintColor);
+			drawPaint.setAntiAlias(true);
+			drawPaint.setStrokeWidth(20);
+			drawPaint.setStyle(Paint.Style.STROKE);
+			drawPaint.setStrokeJoin(Paint.Join.ROUND);
+			drawPaint.setStrokeCap(Paint.Cap.ROUND);
+			canvasPaint = new Paint(Paint.DITHER_FLAG);
 		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-	Handler mHideHandler = new Handler();
-	Runnable mHideRunnable = new Runnable() {
 		
 		@Override
-		public void run() {
-			mSystemUiHider.hide();
+		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+			// view given size
+			super.onSizeChanged(w, h, oldw, oldh);
+			canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+			drawCanvas = new Canvas(canvasBitmap);
 		}
-	};
-	
-	/**
-	 * Schedules a call to hide() in [delay] milliseconds, canceling any previously scheduled calls.
-	 */
-	private void delayedHide(int delayMillis) {
-		mHideHandler.removeCallbacks(mHideRunnable);
-		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+		
+		@Override
+		protected void onDraw(Canvas canvas) {
+			canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+			canvas.drawPath(drawPath, drawPaint);
+		}
+		
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			// detect user touch
+			float touchX = event.getX();
+			float touchY = event.getY();
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					drawPath.moveTo(touchX, touchY);
+					break;
+				case MotionEvent.ACTION_MOVE:
+					drawPath.lineTo(touchX, touchY);
+					break;
+				case MotionEvent.ACTION_UP:
+					drawCanvas.drawPath(drawPath, drawPaint);
+					drawPath.reset();
+					break;
+				default:
+					return false;
+			}
+			invalidate();
+			return true;
+		}
 	}
 	
 }

@@ -4,7 +4,7 @@
     <string name="app_name">Image-ination</string>
     <string name="title_section1_takephoto">Take Photo</string>
     <string name="title_section2_browsegallery">Browse Gallery</string>
-    <string name="title_section3_otherstuff">Other Stuff</string>
+    <string name="title_section3_browsedatabase">Browse Database</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
@@ -12,10 +12,11 @@
     <string name="take_photo">Take Photo</string>
     <string name="under_construction">Under Construction&#8230;</string>
     <string name="edit_image">Edit Image</string>
-    <string name="title_activity_edit_image">EditImageActivity</string>
+    <string name="title_activity_edit_image">Image-ination Edit</string>
     <string name="save">Save</string>
     <string name="color">Color</string>
     <string name="filter">Filter</string>
     <string name="save_to_gallery">Save to Gallery</string>
+    <string name="refresh">Refresh</string>
 
 </resources>

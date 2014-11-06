@@ -10,6 +10,9 @@ import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
+import android.util.Log;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 
 public class ImageStorage {
 	
@@ -63,7 +66,25 @@ public class ImageStorage {
 	}
 	
 	public boolean SaveBitmapToDatabase(Bitmap b) {
-		return false;
+		ParseObject values = new ParseObject("Image");
+		String title = generateTitle(MEDIA_TYPE_IMAGE);
+		values.put(Images.Media.TITLE, title);
+		values.put(Images.Media.BUCKET_ID, "what is a bucket_id");
+		values.put(Images.Media.DESCRIPTION, "saved from Image_ination");
+		values.put(Images.Media.MIME_TYPE, "image/jpeg");
+		// set date so that photo is sorted correctly by gallery
+		long seconds = System.currentTimeMillis() / 1000;
+		values.put(Images.Media.DATE_ADDED, seconds);
+		values.put(Images.Media.DATE_TAKEN, seconds);
+		values.put(Images.Media.DATE_MODIFIED, seconds);
+		values.setObjectId(title);
+		try {
+			values.pin();
+		}
+		catch (ParseException e) {
+			Log.v(TAG, "parse fail");
+			return false;
+		}
+		return true;
 	}
-	
 }
